@@ -27,3 +27,13 @@ export async function getDB() {
   if (!dbPromise) await initDB();
   return dbPromise;
 }
+
+export async function getAllData(storeName) {
+  const db = await getDB();
+  return db.getAll(storeName);
+}
+
+export async function addData(storeName, data) {
+  const db = await getDB();
+  return db.put(storeName, data);
+}

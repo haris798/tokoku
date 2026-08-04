@@ -6,30 +6,30 @@ export function renderDashboard(container) {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
           <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Penjualan</p>
-          <p class="text-2xl font-black text-slate-800 dark:text-slate-100">Rp 12.450.000</p>
-          <p class="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-2 flex items-center gap-1">
-            <span class="material-symbols-outlined text-[14px]">trending_up</span> 12% vs bln lalu
+          <p class="text-2xl font-black text-slate-800 dark:text-slate-100">Rp 0</p>
+          <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1">
+            <span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data
           </p>
         </div>
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
           <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Pembelian</p>
-          <p class="text-2xl font-black text-slate-800 dark:text-slate-100">Rp 8.210.000</p>
+          <p class="text-2xl font-black text-slate-800 dark:text-slate-100">Rp 0</p>
           <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1">
-             <span class="material-symbols-outlined text-[14px]">receipt_long</span> 24 Transaksi
+             <span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data
           </p>
         </div>
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
           <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Laba Kotor</p>
-          <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400">Rp 4.240.000</p>
-          <p class="text-xs text-emerald-600 dark:text-emerald-400 font-bold mt-2 flex items-center gap-1">
-             <span class="material-symbols-outlined text-[14px]">account_balance_wallet</span> Margin 34%
+          <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400">Rp 0</p>
+          <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1">
+             <span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data
           </p>
         </div>
         <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 dark:from-indigo-900 dark:to-indigo-950 p-5 rounded-2xl border border-indigo-500 dark:border-indigo-800 shadow-sm flex flex-col justify-between text-white">
           <p class="text-xs font-bold text-indigo-200 uppercase tracking-wider mb-1">Sisa Stok Produk</p>
-          <p class="text-2xl font-black">1.422 Unit</p>
+          <p class="text-2xl font-black">0 Unit</p>
           <p class="text-xs text-indigo-200 font-bold mt-2 flex items-center gap-1">
-             <span class="material-symbols-outlined text-[14px]">warning</span> 8 Produk Menipis
+             <span class="material-symbols-outlined text-[14px]">info</span> Belum ada data
           </p>
         </div>
       </div>
@@ -79,54 +79,10 @@ export function renderDashboard(container) {
           <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-slate-800 dark:text-slate-100">Transaksi Terakhir</h3>
           </div>
-          <div class="space-y-4 flex-1 overflow-y-auto pr-2">
-            
-            <div class="flex items-center gap-3 border-b border-slate-50 dark:border-slate-800/50 pb-3">
-              <div class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs shrink-0 border border-emerald-100 dark:border-emerald-500/20">
-                <span class="material-symbols-outlined text-[16px]">arrow_downward</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">Penjualan #0442</p>
-                <p class="text-[10px] text-slate-400 truncate">Ahmad Sudrajat</p>
-              </div>
-              <p class="text-xs font-black text-emerald-600 dark:text-emerald-400 text-right shrink-0">+Rp 145rb</p>
-            </div>
-            
-            <div class="flex items-center gap-3 border-b border-slate-50 dark:border-slate-800/50 pb-3">
-              <div class="w-8 h-8 rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xs shrink-0 border border-rose-100 dark:border-rose-500/20">
-                <span class="material-symbols-outlined text-[16px]">arrow_upward</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">Pembelian Stok</p>
-                <p class="text-[10px] text-slate-400 truncate">PT. Sumber Rejeki</p>
-              </div>
-              <p class="text-xs font-black text-rose-600 dark:text-rose-400 text-right shrink-0">-Rp 1.2jt</p>
-            </div>
-            
-            <div class="flex items-center gap-3 border-b border-slate-50 dark:border-slate-800/50 pb-3">
-              <div class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs shrink-0 border border-emerald-100 dark:border-emerald-500/20">
-                <span class="material-symbols-outlined text-[16px]">arrow_downward</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">Penjualan #0441</p>
-                <p class="text-[10px] text-slate-400 truncate">Sari Indah</p>
-              </div>
-              <p class="text-xs font-black text-emerald-600 dark:text-emerald-400 text-right shrink-0">+Rp 62rb</p>
-            </div>
-            
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs shrink-0 border border-emerald-100 dark:border-emerald-500/20">
-                <span class="material-symbols-outlined text-[16px]">arrow_downward</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">Penjualan #0440</p>
-                <p class="text-[10px] text-slate-400 truncate">Walk-in Customer</p>
-              </div>
-              <p class="text-xs font-black text-emerald-600 dark:text-emerald-400 text-right shrink-0">+Rp 210rb</p>
-            </div>
-            
+          <div class="space-y-4 flex-1 overflow-y-auto pr-2 flex items-center justify-center">
+            <p class="text-sm font-medium text-slate-400">Belum ada transaksi</p>
           </div>
-          <button class="mt-4 w-full py-2 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-bold text-[10px] rounded-lg border border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors uppercase tracking-wider">
+          <button class="mt-4 w-full py-2 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-bold text-[10px] rounded-lg border border-slate-100 dark:border-slate-700 transition-colors uppercase tracking-wider opacity-50 cursor-not-allowed">
             Lihat Semua
           </button>
         </div>

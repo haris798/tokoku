@@ -35,16 +35,9 @@ export function renderPurchase(container) {
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-               <!-- Mock Data -->
-               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
-                 <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">08-01-2026</td>
-                 <td class="px-6 py-4">PT. Sumber Rejeki</td>
-                 <td class="px-6 py-4">Kopi Arabica 10kg</td>
-                 <td class="px-6 py-4">1</td>
-                 <td class="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">Rp 1.200.000</td>
-                 <td class="px-6 py-4 text-center">
-                    <button class="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-                    <button class="p-1 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+               <tr>
+                 <td colspan="6" class="px-6 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
+                    Belum ada data pembelian.
                  </td>
                </tr>
             </tbody>

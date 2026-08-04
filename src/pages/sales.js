@@ -35,27 +35,9 @@ export function renderSales(container) {
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-               <!-- Mock Data -->
-               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
-                 <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">08-01-2026</td>
-                 <td class="px-6 py-4">Ahmad Sudrajat</td>
-                 <td class="px-6 py-4">Kopi Arabica 1kg</td>
-                 <td class="px-6 py-4">2</td>
-                 <td class="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">Rp 145.000</td>
-                 <td class="px-6 py-4 text-center">
-                    <button class="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-                    <button class="p-1 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"><span class="material-symbols-outlined text-[18px]">delete</span></button>
-                 </td>
-               </tr>
-               <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
-                 <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">08-01-2026</td>
-                 <td class="px-6 py-4">Sari Indah</td>
-                 <td class="px-6 py-4">Gula Pasir 1kg</td>
-                 <td class="px-6 py-4">4</td>
-                 <td class="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">Rp 62.000</td>
-                 <td class="px-6 py-4 text-center">
-                    <button class="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"><span class="material-symbols-outlined text-[18px]">edit</span></button>
-                    <button class="p-1 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"><span class="material-symbols-outlined text-[18px]">delete</span></button>
+               <tr>
+                 <td colspan="6" class="px-6 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
+                    Belum ada data penjualan.
                  </td>
                </tr>
             </tbody>
@@ -63,7 +45,7 @@ export function renderSales(container) {
         </div>
         
         <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-           <span>Menampilkan 1-10 dari 24 transaksi</span>
+           <span>Menampilkan 0 dari 0 transaksi</span>
            <div class="flex gap-1">
              <button class="p-1 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"><span class="material-symbols-outlined text-[18px]">chevron_left</span></button>
              <button class="p-1 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
