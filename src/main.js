@@ -3,6 +3,7 @@ import { renderSidebar, renderBottomNav } from './components/layout.js';
 import { initRouter, navigateTo } from './utils/router.js';
 import { initTheme } from './utils/theme.js';
 import { initDB } from './db/indexeddb.js';
+import { updateSyncStatusUI } from './utils/supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   // Initialize Database
@@ -12,6 +13,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderSidebar();
   renderBottomNav();
   initTheme();
+  
+  // Initialize Supabase Status
+  await updateSyncStatusUI();
   
   // Initialize Router
   initRouter();
