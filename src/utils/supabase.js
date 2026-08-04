@@ -72,7 +72,7 @@ export async function syncDataToCloud() {
   addSyncLog('Memulai sinkronisasi data...', 'info');
 
   try {
-    const { getAllData } = await import('../db/indexeddb.js');
+    const { getAllData, addData } = await import('../db/indexeddb.js');
     
     // Ambil session user untuk ditambahkan ke payload jika RLS mewajibkan user_id
     const { data: { session } } = await supabase.auth.getSession();
@@ -137,6 +137,13 @@ export async function syncDataToCloud() {
 
       const { error: saleItemsError } = await supabase.from('sale_items').upsert(saleItemsPayload);
       if (saleItemsError) throw saleItemsError;
+
+      for (const s of sales) {
+        if (!s.is_synced) {
+          s.is_synced = true;
+          await addData('sales', s);
+        }
+      }
     }
 
     // 3. Sync Purchases & Purchase Items
@@ -165,6 +172,69 @@ export async function syncDataToCloud() {
 
       const { error: purchaseItemsError } = await supabase.from('purchase_items').upsert(purchaseItemsPayload);
       if (purchaseItemsError) throw purchaseItemsError;
+
+      for (const p of purchases) {
+        if (!p.is_synced) {
+          p.is_synced = true;
+          await addData('purchase', p);
+        }
+      }
+    }
+
+    // 4. Download from Cloud to Local
+    try {
+      addSyncLog('Mengambil data dari cloud ke lokal...', 'info');
+      
+      const { data: cloudProducts } = await supabase.from('products').select('*');
+      const productNamesById = {};
+      if (cloudProducts) {
+        cloudProducts.forEach(p => productNamesById[p.id] = p.name);
+      }
+      
+      const { data: cloudSales } = await supabase.from('sales').select('*, sale_items(*)');
+      if (cloudSales) {
+        for (const s of cloudSales) {
+          const item = s.sale_items && s.sale_items[0];
+          if (item) {
+             const localSale = {
+               id: s.id,
+               date: s.sale_date,
+               customer: s.customer_name,
+               product: productNamesById[item.product_id] || 'Unknown',
+               qty: item.quantity,
+               price: item.price,
+               total: s.total_amount,
+               updated_at: s.created_at,
+               is_synced: true
+             };
+             await addData('sales', localSale);
+          }
+        }
+      }
+
+      const { data: cloudPurchases } = await supabase.from('purchases').select('*, purchase_items(*)');
+      if (cloudPurchases) {
+        for (const p of cloudPurchases) {
+          const item = p.purchase_items && p.purchase_items[0];
+          if (item) {
+             const localPurchase = {
+               id: p.id,
+               date: p.purchase_date,
+               supplier: p.supplier_name,
+               product: productNamesById[item.product_id] || 'Unknown',
+               qty: item.quantity,
+               price: item.price,
+               total: p.total_amount,
+               updated_at: p.created_at,
+               is_synced: true
+             };
+             await addData('purchase', localPurchase);
+          }
+        }
+      }
+    } catch (dlErr) {
+      console.warn('Gagal download data dari cloud', dlErr);
+      addSyncLog(`Gagal download data dari cloud: ${dlErr.message}`, 'error');
     }
 
     addSyncLog('Sinkronisasi selesai dengan sukses', 'success');

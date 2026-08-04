@@ -54,9 +54,12 @@ jobs:
         working-directory: ./android
         run: ./gradlew assembleDebug
 
+      - name: Rename APK
+        run: mv android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/Tokoku.apk
+
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Tokoku-apk
-          path: android/app/build/outputs/apk/debug/*.apk
+          name: Tokoku
+          path: android/app/build/outputs/apk/debug/Tokoku.apk
           if-no-files-found: warn
