@@ -6,6 +6,9 @@ import { getAllData, addData, deleteData } from '../db/indexeddb.js';
 import { showModal, hideModal, confirmModal } from '../utils/modal.js';
 import { showToast } from '../utils/toast.js';
 
+let currentPage = 1;
+const ITEMS_PER_PAGE = 20;
+
 export async function renderSales(container) {
   container.innerHTML = `
     <div class="max-w-7xl mx-auto space-y-6">
@@ -54,8 +57,8 @@ export async function renderSales(container) {
         <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
            <span id="sales-count">Menampilkan 0 transaksi</span>
            <div class="flex gap-1">
-             <button class="p-1 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"><span class="material-symbols-outlined text-[18px]">chevron_left</span></button>
-             <button class="p-1 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
+             <button id="btn-prev-page" class="p-1 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"><span class="material-symbols-outlined text-[18px]">chevron_left</span></button>
+             <button id="btn-next-page" class="p-1 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
            </div>
         </div>
       </div>
@@ -65,6 +68,18 @@ export async function renderSales(container) {
 
   document.getElementById('btn-add-sale').addEventListener('click', () => {
     showSaleModal(null, loadSales);
+  });
+
+  document.getElementById('btn-prev-page').addEventListener('click', () => {
+    if (currentPage > 1) {
+      currentPage--;
+      loadSales();
+    }
+  });
+
+  document.getElementById('btn-next-page').addEventListener('click', () => {
+    currentPage++;
+    loadSales();
   });
 
   document.getElementById('sales-table-body').addEventListener('click', async (e) => {
@@ -90,22 +105,37 @@ export async function renderSales(container) {
     }
   });
 
+  currentPage = 1;
   await loadSales();
 }
 
 async function loadSales() {
   const tbody = document.getElementById('sales-table-body');
   const countEl = document.getElementById('sales-count');
+  const btnPrev = document.getElementById('btn-prev-page');
+  const btnNext = document.getElementById('btn-next-page');
   
   if (!tbody) return;
 
   try {
     const sales = await getAllData('sales');
     sales.sort((a, b) => new Date(b.date) - new Date(a.date)); // descending
+    
+    const totalItems = sales.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE) || 1;
+    
+    if (currentPage > totalPages) currentPage = totalPages;
+    
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
+    
+    const paginatedSales = sales.slice(startIndex, endIndex);
 
-    countEl.textContent = `Menampilkan ${sales.length} transaksi`;
+    if (btnPrev) btnPrev.disabled = currentPage === 1;
+    if (btnNext) btnNext.disabled = currentPage === totalPages;
 
-    if (sales.length === 0) {
+    if (totalItems === 0) {
+      countEl.textContent = `Menampilkan 0 transaksi`;
       tbody.innerHTML = `
         <tr>
           <td colspan="6" class="px-6 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
@@ -116,7 +146,9 @@ async function loadSales() {
       return;
     }
 
-    tbody.innerHTML = sales.map(sale => `
+    countEl.textContent = `Menampilkan ${startIndex + 1}-${endIndex} dari ${totalItems} transaksi`;
+
+    tbody.innerHTML = paginatedSales.map(sale => `
       <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
         <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">${new Date(sale.date).toLocaleDateString('id-ID')}</td>
         <td class="px-6 py-4">${sale.customer}</td>

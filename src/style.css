@@ -54,6 +54,9 @@
   background-color: #94a3b8;
 }
 
+.pt-safe {
+  padding-top: max(16px, env(safe-area-inset-top));
+}
 .pb-safe {
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
 }
