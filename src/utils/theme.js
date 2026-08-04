@@ -1,3 +1,7 @@
+/**
+ * Modul Tema
+ * Menangani mode gelap dan terang
+ */
 export function initTheme() {
   const themeToggle = document.getElementById('theme-toggle');
   

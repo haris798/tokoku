@@ -1,3 +1,7 @@
+/**
+ * Modul Router
+ * Mengatur navigasi antar halaman (SPA routing berbasis hash)
+ */
 import { updateActiveNav } from '../components/layout.js';
 import { renderDashboard } from '../pages/dashboard.js';
 import { renderSales } from '../pages/sales.js';

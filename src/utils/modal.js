@@ -1,3 +1,7 @@
+/**
+ * Modul Modal
+ * Menangani tampilan pop-up modal
+ */
 export function showModal(html, onInit) {
   const container = document.getElementById('modal-container');
   container.innerHTML = html;

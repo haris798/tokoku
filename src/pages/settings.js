@@ -1,8 +1,14 @@
+/**
+ * Halaman Pengaturan
+ * Mengelola konfigurasi sinkronisasi data dengan Supabase
+ */
 import { updateSupabaseConfig, getSupabase, updateSyncStatusUI, checkSupabaseSession } from '../utils/supabase.js';
 
 export function renderSettings(container) {
   const supabaseUrl = localStorage.getItem('supabase_url') || import.meta.env.VITE_SUPABASE_URL || '';
   const supabaseAnonKey = localStorage.getItem('supabase_anon_key') || import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+  const supabaseUser = import.meta.env.VITE_SUPABASE_USER || '';
+  const supabasePass = import.meta.env.VITE_SUPABASE_PASS || '';
 
   container.innerHTML = `
     <div class="max-w-3xl mx-auto space-y-6">
@@ -27,11 +33,11 @@ export function renderSettings(container) {
            </div>
            <div>
              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 capitalize tracking-wider mb-2">Autentikasi (Email)</label>
-             <input type="email" id="supabase-email" placeholder="admin@toko.ku" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-slate-100 transition-colors">
+             <input type="email" id="supabase-email" placeholder="admin@toko.ku" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-slate-100 transition-colors" value="${supabaseUser}">
            </div>
            <div>
              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 capitalize tracking-wider mb-2">Password</label>
-             <input type="password" id="supabase-password" placeholder="••••••••" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-slate-100 transition-colors">
+             <input type="password" id="supabase-password" placeholder="••••••••" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-slate-100 transition-colors" value="${supabasePass}">
            </div>
            
            <div id="supabase-status-message" class="text-sm font-medium hidden p-3 rounded-lg"></div>
@@ -39,11 +45,6 @@ export function renderSettings(container) {
            <button id="btn-save-supabase" class="w-full bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-colors mt-2 flex justify-center items-center gap-2">
              <span class="material-symbols-outlined text-[18px]">login</span>
              Simpan Konfigurasi & Login
-           </button>
-           
-           <button id="btn-logout-supabase" class="w-full border border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-500/30 dark:text-rose-400 dark:hover:bg-rose-500/10 px-5 py-2.5 rounded-xl font-bold text-sm transition-colors mt-2 hidden flex justify-center items-center gap-2">
-             <span class="material-symbols-outlined text-[18px]">logout</span>
-             Logout
            </button>
         </div>
       </div>
@@ -76,7 +77,6 @@ export function renderSettings(container) {
 
 async function setupSupabaseHandlers() {
   const btnSave = document.getElementById('btn-save-supabase');
-  const btnLogout = document.getElementById('btn-logout-supabase');
   const statusMsg = document.getElementById('supabase-status-message');
   
   const showMessage = (msg, isError = false) => {
@@ -89,13 +89,11 @@ async function setupSupabaseHandlers() {
     const isConnected = await checkSupabaseSession();
     if (isConnected) {
       btnSave.classList.add('hidden');
-      btnLogout.classList.remove('hidden');
       document.getElementById('supabase-email').parentElement.classList.add('hidden');
       document.getElementById('supabase-password').parentElement.classList.add('hidden');
       showMessage('Berhasil terhubung dengan Supabase.');
     } else {
       btnSave.classList.remove('hidden');
-      btnLogout.classList.add('hidden');
       document.getElementById('supabase-email').parentElement.classList.remove('hidden');
       document.getElementById('supabase-password').parentElement.classList.remove('hidden');
     }
@@ -141,16 +139,6 @@ async function setupSupabaseHandlers() {
 
     btnSave.disabled = false;
     btnSave.innerHTML = '<span class="material-symbols-outlined text-[18px]">login</span> Simpan Konfigurasi & Login';
-  });
-  
-  btnLogout.addEventListener('click', async () => {
-    const supabase = getSupabase();
-    if (supabase) {
-      await supabase.auth.signOut();
-    }
-    statusMsg.classList.add('hidden');
-    await updateUIState();
-    updateSyncStatusUI();
   });
 }
 

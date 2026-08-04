@@ -1,3 +1,7 @@
+/**
+ * Modul Supabase
+ * Mengatur inisialisasi, autentikasi, dan status sinkronisasi cloud
+ */
 import { createClient } from '@supabase/supabase-js';
 
 let supabaseInstance = null;

@@ -1,4 +1,8 @@
 import Chart from 'chart.js/auto';
+/**
+ * Halaman Dashboard
+ * Menampilkan ringkasan sistem, metrik penjualan/pembelian, dan grafik
+ */
 import { getAllData } from '../db/indexeddb.js';
 
 export async function renderDashboard(container) {

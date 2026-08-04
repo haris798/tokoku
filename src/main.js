@@ -1,3 +1,7 @@
+/**
+ * Main Entry Point
+ * Inisialisasi awal aplikasi
+ */
 import './style.css';
 import { renderSidebar, renderBottomNav } from './components/layout.js';
 import { initRouter, navigateTo } from './utils/router.js';

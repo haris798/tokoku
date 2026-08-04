@@ -1,4 +1,8 @@
-import { getAllData, addData } from '../db/indexeddb.js';
+/**
+ * Halaman Pembelian
+ * Menangani daftar pembelian, form tambah pembelian, dan UI terkait
+ */
+import { getAllData, addData, deleteData } from '../db/indexeddb.js';
 import { showModal, hideModal } from '../utils/modal.js';
 import { showToast } from '../utils/toast.js';
 
@@ -34,11 +38,12 @@ export async function renderPurchase(container) {
                 <th class="px-6 py-4">Produk</th>
                 <th class="px-6 py-4">Qty</th>
                 <th class="px-6 py-4">Total</th>
+                <th class="px-6 py-4 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody id="purchase-table-body" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
                <tr>
-                 <td colspan="5" class="px-6 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
+                 <td colspan="6" class="px-6 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
                     Memuat data...
                  </td>
                </tr>
@@ -59,7 +64,30 @@ export async function renderPurchase(container) {
   `;
 
   document.getElementById('btn-add-purchase').addEventListener('click', () => {
-    showAddPurchaseModal(loadPurchases);
+    showPurchaseModal(null, loadPurchases);
+  });
+
+  document.getElementById('purchase-table-body').addEventListener('click', async (e) => {
+    const btnEdit = e.target.closest('.btn-edit-purchase');
+    const btnDelete = e.target.closest('.btn-delete-purchase');
+    
+    if (btnEdit) {
+      const id = btnEdit.dataset.id;
+      const purchases = await getAllData('purchase');
+      const purchase = purchases.find(p => p.id === id);
+      if (purchase) showPurchaseModal(purchase, loadPurchases);
+    } else if (btnDelete) {
+      const id = btnDelete.dataset.id;
+      if (confirm('Apakah Anda yakin ingin menghapus pembelian ini?')) {
+        try {
+          await deleteData('purchase', id);
+          showToast('Pembelian dihapus', 'success');
+          loadPurchases();
+        } catch (err) {
+          showToast('Gagal menghapus', 'error');
+        }
+      }
+    }
   });
 
   await loadPurchases();
@@ -80,7 +108,7 @@ async function loadPurchases() {
     if (purchases.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="5" class="px-6 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
+          <td colspan="6" class="px-6 py-8 text-center text-slate-500 dark:text-slate-400 text-sm">
             Belum ada data pembelian.
           </td>
         </tr>
@@ -95,6 +123,16 @@ async function loadPurchases() {
         <td class="px-6 py-4">${purchase.product}</td>
         <td class="px-6 py-4">${purchase.qty}</td>
         <td class="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">Rp ${Number(purchase.total).toLocaleString('id-ID')}</td>
+        <td class="px-6 py-4 text-right">
+          <div class="flex items-center justify-end gap-2">
+            <button class="btn-edit-purchase p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-colors" data-id="${purchase.id}" title="Edit">
+              <span class="material-symbols-outlined text-[18px]">edit</span>
+            </button>
+            <button class="btn-delete-purchase p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors" data-id="${purchase.id}" title="Hapus">
+              <span class="material-symbols-outlined text-[18px]">delete</span>
+            </button>
+          </div>
+        </td>
       </tr>
     `).join('');
     
@@ -102,7 +140,7 @@ async function loadPurchases() {
     console.error(e);
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" class="px-6 py-8 text-center text-rose-500 dark:text-rose-400 text-sm">
+        <td colspan="6" class="px-6 py-8 text-center text-rose-500 dark:text-rose-400 text-sm">
           Gagal memuat data.
         </td>
       </tr>
@@ -110,11 +148,12 @@ async function loadPurchases() {
   }
 }
 
-function showAddPurchaseModal(onSuccess) {
+function showPurchaseModal(purchaseData, onSuccess) {
+  const isEdit = !!purchaseData;
   const modalHtml = `
     <div class="modal-content w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-slate-100 dark:border-slate-800">
       <div class="flex justify-between items-center p-5 border-b border-slate-100 dark:border-slate-800">
-        <h3 class="font-bold text-lg text-slate-800 dark:text-slate-100">Tambah Pembelian</h3>
+        <h3 class="font-bold text-lg text-slate-800 dark:text-slate-100">${isEdit ? 'Edit' : 'Tambah'} Pembelian</h3>
         <div class="flex items-center gap-2">
           <button type="submit" form="form-add-purchase" class="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors flex items-center justify-center p-1" title="Simpan">
             <span class="material-symbols-outlined">save</span>
@@ -158,7 +197,16 @@ function showAddPurchaseModal(onSuccess) {
   `;
 
   showModal(modalHtml, (container) => {
-    document.getElementById('purchase-date').valueAsDate = new Date();
+    if (isEdit) {
+      document.getElementById('purchase-date').value = purchaseData.date;
+      document.getElementById('purchase-supplier').value = purchaseData.supplier;
+      document.getElementById('purchase-product').value = purchaseData.product;
+      document.getElementById('purchase-qty').value = purchaseData.qty;
+      document.getElementById('purchase-price').value = purchaseData.price;
+      document.getElementById('purchase-ongkir').value = purchaseData.ongkir || 0;
+    } else {
+      document.getElementById('purchase-date').valueAsDate = new Date();
+    }
     
     document.getElementById('form-add-purchase').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -172,7 +220,7 @@ function showAddPurchaseModal(onSuccess) {
       const total = (qty * price) + ongkir;
       
       const newPurchase = {
-        id: crypto.randomUUID(),
+        id: isEdit ? purchaseData.id : crypto.randomUUID(),
         date,
         supplier,
         product,
@@ -184,8 +232,8 @@ function showAddPurchaseModal(onSuccess) {
       };
 
       try {
-        await addData('purchase', newPurchase);
-        showToast('Pembelian berhasil ditambahkan', 'success');
+        await addData('purchase', newPurchase); // idb put works as update if id exists
+        showToast(isEdit ? 'Pembelian diperbarui' : 'Pembelian berhasil ditambahkan', 'success');
         hideModal();
         if (onSuccess) onSuccess();
       } catch (err) {

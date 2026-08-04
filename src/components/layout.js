@@ -9,6 +9,10 @@ const menuItems = [
 
 const settingsItem = { id: 'settings', label: 'Pengaturan', icon: 'settings' };
 
+/**
+ * Modul Layout Komponen
+ * Bertanggung jawab untuk merender sidebar dan bottom navigasi
+ */
 export function renderSidebar() {
   const sidebarNav = document.getElementById('sidebar-nav');
   const sidebarFooter = document.getElementById('sidebar-footer');

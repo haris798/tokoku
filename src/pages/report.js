@@ -1,3 +1,7 @@
+/**
+ * Halaman Laporan / Rekap Data
+ * Menampilkan dan mengekspor laporan transaksi
+ */
 export function renderReport(container) {
   container.innerHTML = `
     <div class="max-w-7xl mx-auto space-y-6">
