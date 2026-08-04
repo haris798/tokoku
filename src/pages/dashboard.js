@@ -8,31 +8,34 @@ export async function renderDashboard(container) {
       <!-- Metric Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Penjualan</p>
+          <p class="text-xs font-bold text-slate-400 capitalize tracking-wider mb-1">Total Penjualan</p>
           <p class="text-2xl font-black text-slate-800 dark:text-slate-100" id="total-penjualan">Rp 0</p>
           <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1">
             <span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data
           </p>
         </div>
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Pembelian</p>
+          <p class="text-xs font-bold text-slate-400 capitalize tracking-wider mb-1">Total Pembelian</p>
           <p class="text-2xl font-black text-slate-800 dark:text-slate-100" id="total-pembelian">Rp 0</p>
           <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1">
              <span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data
           </p>
         </div>
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
-          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Laba Kotor</p>
+          <p class="text-xs font-bold text-slate-400 capitalize tracking-wider mb-1">Laba Kotor</p>
           <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400" id="laba-kotor">Rp 0</p>
           <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1">
              <span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data
           </p>
         </div>
         <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 dark:from-indigo-900 dark:to-indigo-950 p-5 rounded-2xl border border-indigo-500 dark:border-indigo-800 shadow-sm flex flex-col justify-between text-white">
-          <p class="text-xs font-bold text-indigo-200 uppercase tracking-wider mb-1">Sisa Stok Produk</p>
-          <p class="text-2xl font-black">0 Unit</p>
+          <p class="text-xs font-bold text-indigo-200 capitalize tracking-wider mb-1">Sisa Stok Produk</p>
+          <div class="mt-1">
+            <p class="text-2xl font-black" id="sisa-stok-unit">0</p>
+            <p class="text-sm font-medium text-indigo-100 mt-0.5" id="sisa-stok-value">Rp 0</p>
+          </div>
           <p class="text-xs text-indigo-200 font-bold mt-2 flex items-center gap-1">
-             <span class="material-symbols-outlined text-[14px]">info</span> Belum ada data
+             <span class="material-symbols-outlined text-[14px]">info</span> Estimasi total aset
           </p>
         </div>
       </div>
@@ -58,7 +61,7 @@ export async function renderDashboard(container) {
           <div class="space-y-4 flex-1 overflow-y-auto pr-2 flex items-center justify-center">
             <p class="text-sm font-medium text-slate-400">Belum ada transaksi</p>
           </div>
-          <button class="mt-4 w-full py-2 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-bold text-[10px] rounded-lg border border-slate-100 dark:border-slate-700 transition-colors uppercase tracking-wider opacity-50 cursor-not-allowed">
+          <button class="mt-4 w-full py-2 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-bold text-[10px] rounded-lg border border-slate-100 dark:border-slate-700 transition-colors capitalize tracking-wider opacity-50 cursor-not-allowed">
             Lihat Semua
           </button>
         </div>
@@ -100,6 +103,8 @@ async function loadDashboardData() {
     let totalSales = 0;
     let totalPurchases = 0;
 
+    const products = {};
+
     sales.forEach(sale => {
       if (sale.date) {
         const date = new Date(sale.date);
@@ -108,9 +113,18 @@ async function loadDashboardData() {
         monthlySales[month] += amount;
         totalSales += amount;
       }
+      
+      const productName = sale.product?.trim().toLowerCase();
+      if (productName) {
+         if (!products[productName]) products[productName] = { purchaseQty: 0, salesQty: 0, latestPrice: 0 };
+         products[productName].salesQty += (Number(sale.qty) || 0);
+      }
     });
 
-    purchases.forEach(purchase => {
+    // Sort purchases by date ascending so we can capture the latest price correctly
+    const sortedPurchases = [...purchases].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    sortedPurchases.forEach(purchase => {
       if (purchase.date) {
         const date = new Date(purchase.date);
         const month = date.getMonth(); // 0-11
@@ -118,13 +132,37 @@ async function loadDashboardData() {
         monthlyPurchases[month] += amount;
         totalPurchases += amount;
       }
+      
+      const productName = purchase.product?.trim().toLowerCase();
+      if (productName) {
+         if (!products[productName]) products[productName] = { purchaseQty: 0, salesQty: 0, latestPrice: 0 };
+         products[productName].purchaseQty += (Number(purchase.qty) || 0);
+         // Update latest price
+         if (purchase.price) {
+             products[productName].latestPrice = Number(purchase.price);
+         }
+      }
     });
+    
+    let totalStokUnit = 0;
+    let totalStokValue = 0;
+    
+    for (const key in products) {
+       const product = products[key];
+       const remainingQty = product.purchaseQty - product.salesQty;
+       if (remainingQty > 0) {
+           totalStokUnit += remainingQty;
+           totalStokValue += remainingQty * product.latestPrice;
+       }
+    }
 
     // Update Metric Cards
     const formatCurrency = (num) => 'Rp ' + num.toLocaleString('id-ID');
     document.getElementById('total-penjualan').textContent = formatCurrency(totalSales);
     document.getElementById('total-pembelian').textContent = formatCurrency(totalPurchases);
     document.getElementById('laba-kotor').textContent = formatCurrency(totalSales - totalPurchases);
+    document.getElementById('sisa-stok-unit').textContent = `${totalStokUnit}`;
+    document.getElementById('sisa-stok-value').textContent = formatCurrency(totalStokValue);
 
     renderChart(monthlySales, monthlyPurchases);
   } catch (error) {

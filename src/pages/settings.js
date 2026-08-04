@@ -18,19 +18,19 @@ export function renderSettings(container) {
         </div>
         <div class="p-6 space-y-4">
            <div>
-             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Supabase URL</label>
+             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 capitalize tracking-wider mb-2">Supabase URL</label>
              <input type="text" id="supabase-url" placeholder="https://xyzcompany.supabase.co" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-slate-100 transition-colors" value="${supabaseUrl}">
            </div>
            <div>
-             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Supabase Anon Key</label>
+             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 capitalize tracking-wider mb-2">Supabase Anon Key</label>
              <input type="password" id="supabase-anon-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-slate-100 transition-colors" value="${supabaseAnonKey}">
            </div>
            <div>
-             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Autentikasi (Email)</label>
+             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 capitalize tracking-wider mb-2">Autentikasi (Email)</label>
              <input type="email" id="supabase-email" placeholder="admin@toko.ku" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-slate-100 transition-colors">
            </div>
            <div>
-             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">Password</label>
+             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 capitalize tracking-wider mb-2">Password</label>
              <input type="password" id="supabase-password" placeholder="••••••••" class="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-900 dark:text-slate-100 transition-colors">
            </div>
            
