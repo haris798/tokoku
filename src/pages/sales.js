@@ -3,7 +3,7 @@
  * Menangani daftar penjualan, form tambah penjualan, dan UI terkait
  */
 import { getAllData, addData, deleteData } from '../db/indexeddb.js';
-import { showModal, hideModal } from '../utils/modal.js';
+import { showModal, hideModal, confirmModal } from '../utils/modal.js';
 import { showToast } from '../utils/toast.js';
 
 export async function renderSales(container) {
@@ -78,7 +78,7 @@ export async function renderSales(container) {
       if (sale) showSaleModal(sale, loadSales);
     } else if (btnDelete) {
       const id = btnDelete.dataset.id;
-      if (confirm('Apakah Anda yakin ingin menghapus penjualan ini?')) {
+      confirmModal('Hapus Penjualan', 'Apakah Anda yakin ingin menghapus data penjualan ini? Tindakan ini tidak dapat dibatalkan.', async () => {
         try {
           await deleteData('sales', id);
           showToast('Penjualan dihapus', 'success');
@@ -86,7 +86,7 @@ export async function renderSales(container) {
         } catch (err) {
           showToast('Gagal menghapus', 'error');
         }
-      }
+      });
     }
   });
 

@@ -10,36 +10,26 @@ export async function renderDashboard(container) {
     <div class="space-y-6 max-w-7xl mx-auto">
       
       <!-- Metric Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
           <p class="text-xs font-bold text-slate-400 capitalize tracking-wider mb-1">Total Penjualan</p>
           <p class="text-2xl font-black text-slate-800 dark:text-slate-100" id="total-penjualan">Rp 0</p>
-          <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1">
+          <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1" id="info-penjualan">
             <span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data
           </p>
         </div>
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
           <p class="text-xs font-bold text-slate-400 capitalize tracking-wider mb-1">Total Pembelian</p>
           <p class="text-2xl font-black text-slate-800 dark:text-slate-100" id="total-pembelian">Rp 0</p>
-          <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1">
+          <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1" id="info-pembelian">
              <span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data
           </p>
         </div>
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
           <p class="text-xs font-bold text-slate-400 capitalize tracking-wider mb-1">Laba Kotor</p>
           <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400" id="laba-kotor">Rp 0</p>
-          <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1">
+          <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1" id="info-laba">
              <span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data
-          </p>
-        </div>
-        <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 dark:from-indigo-900 dark:to-indigo-950 p-5 rounded-2xl border border-indigo-500 dark:border-indigo-800 shadow-sm flex flex-col justify-between text-white">
-          <p class="text-xs font-bold text-indigo-200 capitalize tracking-wider mb-1">Sisa Stok Produk</p>
-          <div class="mt-1">
-            <p class="text-2xl font-black" id="sisa-stok-unit">0</p>
-            <p class="text-sm font-medium text-indigo-100 mt-0.5" id="sisa-stok-value">Rp 0</p>
-          </div>
-          <p class="text-xs text-indigo-200 font-bold mt-2 flex items-center gap-1">
-             <span class="material-symbols-outlined text-[14px]">info</span> Estimasi total aset
           </p>
         </div>
       </div>
@@ -165,8 +155,35 @@ async function loadDashboardData() {
     document.getElementById('total-penjualan').textContent = formatCurrency(totalSales);
     document.getElementById('total-pembelian').textContent = formatCurrency(totalPurchases);
     document.getElementById('laba-kotor').textContent = formatCurrency(totalSales - totalPurchases);
-    document.getElementById('sisa-stok-unit').textContent = `${totalStokUnit}`;
-    document.getElementById('sisa-stok-value').textContent = formatCurrency(totalStokValue);
+    
+    // Update Info Texts
+    const updateInfo = (id, amount, label) => {
+      const el = document.getElementById(id);
+      if (amount > 0) {
+        el.innerHTML = `<span class="material-symbols-outlined text-[14px]">check_circle</span> Berdasarkan data terkini`;
+        el.className = 'text-xs text-emerald-500 font-bold mt-2 flex items-center gap-1';
+      } else {
+        el.innerHTML = `<span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data ${label}`;
+        el.className = 'text-xs text-slate-400 font-bold mt-2 flex items-center gap-1';
+      }
+    };
+
+    updateInfo('info-penjualan', totalSales, 'penjualan');
+    updateInfo('info-pembelian', totalPurchases, 'pembelian');
+    
+    const labaEl = document.getElementById('info-laba');
+    if (totalSales > 0 || totalPurchases > 0) {
+      if (totalSales >= totalPurchases) {
+        labaEl.innerHTML = `<span class="material-symbols-outlined text-[14px]">trending_up</span> Profit positif`;
+        labaEl.className = 'text-xs text-emerald-500 font-bold mt-2 flex items-center gap-1';
+      } else {
+        labaEl.innerHTML = `<span class="material-symbols-outlined text-[14px]">trending_down</span> Profit negatif`;
+        labaEl.className = 'text-xs text-rose-500 font-bold mt-2 flex items-center gap-1';
+      }
+    } else {
+      labaEl.innerHTML = `<span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data transaksi`;
+      labaEl.className = 'text-xs text-slate-400 font-bold mt-2 flex items-center gap-1';
+    }
 
     renderChart(monthlySales, monthlyPurchases);
   } catch (error) {

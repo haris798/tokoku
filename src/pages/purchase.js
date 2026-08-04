@@ -3,7 +3,7 @@
  * Menangani daftar pembelian, form tambah pembelian, dan UI terkait
  */
 import { getAllData, addData, deleteData } from '../db/indexeddb.js';
-import { showModal, hideModal } from '../utils/modal.js';
+import { showModal, hideModal, confirmModal } from '../utils/modal.js';
 import { showToast } from '../utils/toast.js';
 
 export async function renderPurchase(container) {
@@ -78,7 +78,7 @@ export async function renderPurchase(container) {
       if (purchase) showPurchaseModal(purchase, loadPurchases);
     } else if (btnDelete) {
       const id = btnDelete.dataset.id;
-      if (confirm('Apakah Anda yakin ingin menghapus pembelian ini?')) {
+      confirmModal('Hapus Pembelian', 'Apakah Anda yakin ingin menghapus data pembelian ini? Tindakan ini tidak dapat dibatalkan.', async () => {
         try {
           await deleteData('purchase', id);
           showToast('Pembelian dihapus', 'success');
@@ -86,7 +86,7 @@ export async function renderPurchase(container) {
         } catch (err) {
           showToast('Gagal menghapus', 'error');
         }
-      }
+      });
     }
   });
 
