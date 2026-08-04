@@ -44,6 +44,7 @@ export async function checkSupabaseSession() {
 
 export async function updateSyncStatusUI() {
   const syncStatusEl = document.getElementById('sync-status');
+  const btnManualSync = document.getElementById('btn-manual-sync');
   if (!syncStatusEl) return;
 
   const indicator = syncStatusEl.querySelector('.indicator');
@@ -52,6 +53,7 @@ export async function updateSyncStatusUI() {
   const isConnected = await checkSupabaseSession();
 
   if (isConnected) {
+    if (btnManualSync) btnManualSync.classList.remove('hidden');
     syncStatusEl.classList.remove('bg-slate-100', 'text-slate-500', 'border-slate-200');
     syncStatusEl.classList.add('bg-emerald-50', 'text-emerald-600', 'border-emerald-200');
     
@@ -65,6 +67,7 @@ export async function updateSyncStatusUI() {
     }
     if (icon) icon.textContent = 'cloud_done';
   } else {
+    if (btnManualSync) btnManualSync.classList.add('hidden');
     syncStatusEl.classList.remove('bg-emerald-50', 'text-emerald-600', 'border-emerald-200');
     syncStatusEl.classList.add('bg-slate-100', 'text-slate-500', 'border-slate-200');
 
