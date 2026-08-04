@@ -43,7 +43,6 @@ export async function updateSyncStatusUI() {
   if (!syncStatusEl) return;
 
   const indicator = syncStatusEl.querySelector('.indicator');
-  const label = syncStatusEl.querySelector('.label');
   const icon = syncStatusEl.querySelector('.material-symbols-outlined');
 
   const isConnected = await checkSupabaseSession();
@@ -60,7 +59,6 @@ export async function updateSyncStatusUI() {
       indicator.classList.remove('bg-slate-400');
       indicator.classList.add('bg-emerald-500');
     }
-    if (label) label.textContent = 'TERHUBUNG';
     if (icon) icon.textContent = 'cloud_done';
   } else {
     syncStatusEl.classList.remove('bg-emerald-50', 'text-emerald-600', 'border-emerald-200');
@@ -74,7 +72,6 @@ export async function updateSyncStatusUI() {
       indicator.classList.remove('bg-emerald-500');
       indicator.classList.add('bg-slate-400');
     }
-    if (label) label.textContent = 'OFFLINE';
     if (icon) icon.textContent = 'cloud_off';
   }
 }

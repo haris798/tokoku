@@ -1,26 +1,29 @@
-export function renderDashboard(container) {
-  // Extracting from the HTML design block provided
+import Chart from 'chart.js/auto';
+import { getAllData } from '../db/indexeddb.js';
+
+export async function renderDashboard(container) {
   container.innerHTML = `
     <div class="space-y-6 max-w-7xl mx-auto">
+      
       <!-- Metric Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
           <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Penjualan</p>
-          <p class="text-2xl font-black text-slate-800 dark:text-slate-100">Rp 0</p>
+          <p class="text-2xl font-black text-slate-800 dark:text-slate-100" id="total-penjualan">Rp 0</p>
           <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1">
             <span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data
           </p>
         </div>
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
           <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Pembelian</p>
-          <p class="text-2xl font-black text-slate-800 dark:text-slate-100">Rp 0</p>
+          <p class="text-2xl font-black text-slate-800 dark:text-slate-100" id="total-pembelian">Rp 0</p>
           <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1">
              <span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data
           </p>
         </div>
         <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col justify-between">
           <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Laba Kotor</p>
-          <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400">Rp 0</p>
+          <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400" id="laba-kotor">Rp 0</p>
           <p class="text-xs text-slate-400 font-bold mt-2 flex items-center gap-1">
              <span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data
           </p>
@@ -35,42 +38,15 @@ export function renderDashboard(container) {
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Chart Mockup (In reality we'd use Chart.js, here's the styled empty container) -->
+        
+        <!-- Chart Container -->
         <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm p-4 md:p-6 flex flex-col min-h-[300px]">
           <div class="flex justify-between items-center mb-6">
             <h3 class="font-bold text-slate-800 dark:text-slate-100">Grafik Penjualan vs Pembelian</h3>
-            <select class="text-xs border border-slate-200 dark:border-slate-700 rounded-md bg-slate-50 dark:bg-slate-800 px-2 py-1 outline-none text-slate-600 dark:text-slate-300 font-medium">
-              <option>7 Hari Terakhir</option>
-              <option>30 Hari Terakhir</option>
-            </select>
           </div>
           
-          <div class="flex-1 relative flex items-end gap-2 md:gap-4 pb-4 mt-4">
-             <!-- Mocked Bar Chart for Visual Polish -->
-            <div class="flex-1 h-[60%] bg-indigo-50 dark:bg-indigo-900/30 rounded-t-lg relative group transition-all hover:bg-indigo-100 dark:hover:bg-indigo-900/50">
-              <div class="absolute bottom-0 w-full h-[80%] bg-indigo-500 dark:bg-indigo-500/80 rounded-t-lg transition-all group-hover:bg-indigo-600"></div>
-            </div>
-            <div class="flex-1 h-[75%] bg-indigo-50 dark:bg-indigo-900/30 rounded-t-lg relative group transition-all hover:bg-indigo-100 dark:hover:bg-indigo-900/50">
-               <div class="absolute bottom-0 w-full h-[65%] bg-indigo-500 dark:bg-indigo-500/80 rounded-t-lg transition-all group-hover:bg-indigo-600"></div>
-            </div>
-            <div class="flex-1 h-[90%] bg-indigo-50 dark:bg-indigo-900/30 rounded-t-lg relative group transition-all hover:bg-indigo-100 dark:hover:bg-indigo-900/50">
-               <div class="absolute bottom-0 w-full h-[85%] bg-indigo-500 dark:bg-indigo-500/80 rounded-t-lg transition-all group-hover:bg-indigo-600"></div>
-            </div>
-            <div class="flex-1 h-[55%] bg-indigo-50 dark:bg-indigo-900/30 rounded-t-lg relative group transition-all hover:bg-indigo-100 dark:hover:bg-indigo-900/50">
-               <div class="absolute bottom-0 w-full h-[40%] bg-indigo-500 dark:bg-indigo-500/80 rounded-t-lg transition-all group-hover:bg-indigo-600"></div>
-            </div>
-            <div class="flex-1 h-[80%] bg-indigo-50 dark:bg-indigo-900/30 rounded-t-lg relative group transition-all hover:bg-indigo-100 dark:hover:bg-indigo-900/50">
-               <div class="absolute bottom-0 w-full h-[70%] bg-indigo-500 dark:bg-indigo-500/80 rounded-t-lg transition-all group-hover:bg-indigo-600"></div>
-            </div>
-            <div class="flex-1 h-[65%] bg-indigo-50 dark:bg-indigo-900/30 rounded-t-lg relative group transition-all hover:bg-indigo-100 dark:hover:bg-indigo-900/50">
-               <div class="absolute bottom-0 w-full h-[50%] bg-indigo-500 dark:bg-indigo-500/80 rounded-t-lg transition-all group-hover:bg-indigo-600"></div>
-            </div>
-            <div class="flex-1 h-[100%] bg-indigo-50 dark:bg-indigo-900/30 rounded-t-lg relative group transition-all hover:bg-indigo-100 dark:hover:bg-indigo-900/50">
-               <div class="absolute bottom-0 w-full h-[90%] bg-indigo-500 dark:bg-indigo-500/80 rounded-t-lg transition-all group-hover:bg-indigo-600"></div>
-            </div>
-          </div>
-          <div class="flex justify-between text-[10px] text-slate-400 font-bold px-2 pt-2 border-t border-slate-50 dark:border-slate-800/50">
-            <span>SEN</span><span>SEL</span><span>RAB</span><span>KAM</span><span>JUM</span><span>SAB</span><span>MIN</span>
+          <div class="flex-1 relative w-full h-[300px]">
+             <canvas id="salesPurchaseChart"></canvas>
           </div>
         </div>
 
@@ -88,7 +64,7 @@ export function renderDashboard(container) {
         </div>
       </div>
       
-      <!-- Action Bar Desktop (Optional representation from Polish theme) -->
+      <!-- Action Bar Desktop -->
       <div class="hidden md:flex bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-4 rounded-2xl shadow-sm items-center gap-4">
          <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-indigo-100 dark:shadow-none transition-all flex items-center gap-2">
            <span class="material-symbols-outlined text-[18px]">add_circle</span>
@@ -106,4 +82,129 @@ export function renderDashboard(container) {
 
     </div>
   `;
+
+  await loadDashboardData();
+}
+
+let dashboardChart = null;
+
+async function loadDashboardData() {
+  try {
+    const sales = await getAllData('sales');
+    const purchases = await getAllData('purchase');
+
+    // Aggregate monthly data
+    const monthlySales = new Array(12).fill(0);
+    const monthlyPurchases = new Array(12).fill(0);
+
+    let totalSales = 0;
+    let totalPurchases = 0;
+
+    sales.forEach(sale => {
+      if (sale.date) {
+        const date = new Date(sale.date);
+        const month = date.getMonth(); // 0-11
+        const amount = Number(sale.total) || 0;
+        monthlySales[month] += amount;
+        totalSales += amount;
+      }
+    });
+
+    purchases.forEach(purchase => {
+      if (purchase.date) {
+        const date = new Date(purchase.date);
+        const month = date.getMonth(); // 0-11
+        const amount = Number(purchase.total) || 0;
+        monthlyPurchases[month] += amount;
+        totalPurchases += amount;
+      }
+    });
+
+    // Update Metric Cards
+    const formatCurrency = (num) => 'Rp ' + num.toLocaleString('id-ID');
+    document.getElementById('total-penjualan').textContent = formatCurrency(totalSales);
+    document.getElementById('total-pembelian').textContent = formatCurrency(totalPurchases);
+    document.getElementById('laba-kotor').textContent = formatCurrency(totalSales - totalPurchases);
+
+    renderChart(monthlySales, monthlyPurchases);
+  } catch (error) {
+    console.error('Failed to load dashboard data:', error);
+  }
+}
+
+function renderChart(monthlySales, monthlyPurchases) {
+  const ctx = document.getElementById('salesPurchaseChart');
+  if (!ctx) return;
+
+  if (dashboardChart) {
+    dashboardChart.destroy();
+  }
+
+  const isDarkMode = document.documentElement.classList.contains('dark');
+  const textColor = isDarkMode ? '#cbd5e1' : '#64748b';
+  const gridColor = isDarkMode ? '#1e293b' : '#f1f5f9';
+
+  dashboardChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+      datasets: [
+        {
+          label: 'Penjualan',
+          data: monthlySales,
+          backgroundColor: '#4f46e5',
+          borderRadius: 4,
+        },
+        {
+          label: 'Pembelian',
+          data: monthlyPurchases,
+          backgroundColor: '#94a3b8',
+          borderRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: textColor,
+            font: {
+              family: "'Inter', sans-serif",
+              size: 12
+            }
+          }
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            color: textColor
+          }
+        },
+        y: {
+          grid: {
+            color: gridColor
+          },
+          ticks: {
+            color: textColor,
+            callback: function(value) {
+              if (value >= 1000000) return (value / 1000000) + 'M';
+              if (value >= 1000) return (value / 1000) + 'k';
+              return value;
+            }
+          }
+        }
+      }
+    }
+  });
 }
