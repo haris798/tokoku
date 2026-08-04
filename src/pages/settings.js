@@ -4,6 +4,8 @@
  */
 import { updateSupabaseConfig, getSupabase, updateSyncStatusUI, checkSupabaseSession } from '../utils/supabase.js';
 import { getSyncLogs } from '../utils/supabase.js';
+import { getAllData, addData } from '../db/indexeddb.js';
+import { showToast } from '../utils/toast.js';
 
 export function renderSettings(container) {
   const supabaseUrl = localStorage.getItem('supabase_url') || import.meta.env.VITE_SUPABASE_URL || '';
@@ -77,14 +79,15 @@ export function renderSettings(container) {
            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Manajemen database IndexedDB pada perangkat ini.</p>
         </div>
         <div class="p-6 flex flex-col md:flex-row gap-4">
-           <button class="flex-1 border border-indigo-200 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-5 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2">
+           <button id="btn-backup-json" class="flex-1 border border-indigo-200 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 px-5 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2">
              <span class="material-symbols-outlined text-[20px]">file_download</span>
              Backup JSON
            </button>
-           <button class="flex-1 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-5 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2">
+           <button id="btn-restore-json" class="flex-1 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 px-5 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2">
              <span class="material-symbols-outlined text-[20px]">file_upload</span>
              Restore JSON
            </button>
+           <input type="file" id="input-restore-json" accept=".json" class="hidden">
         </div>
       </div>
       
@@ -92,6 +95,7 @@ export function renderSettings(container) {
   `;
 
   setupSupabaseHandlers();
+  setupDataHandlers();
   renderSyncLogs();
 
   // Listen to custom event to update logs dynamically
@@ -216,3 +220,69 @@ async function setupSupabaseHandlers() {
 }
 
 
+
+function setupDataHandlers() {
+  const btnBackup = document.getElementById('btn-backup-json');
+  const btnRestore = document.getElementById('btn-restore-json');
+  const inputRestore = document.getElementById('input-restore-json');
+
+  btnBackup.addEventListener('click', async () => {
+    try {
+      const sales = await getAllData('sales');
+      const purchases = await getAllData('purchase');
+      const data = { sales, purchases };
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `backup_toko_ku_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      showToast('Backup berhasil diunduh', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Gagal membuat backup', 'error');
+    }
+  });
+
+  btnRestore.addEventListener('click', () => {
+    inputRestore.click();
+  });
+
+  inputRestore.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const data = JSON.parse(event.target.result);
+        
+        let restoreCount = 0;
+        if (data.sales && Array.isArray(data.sales)) {
+          for (const sale of data.sales) {
+            await addData('sales', sale);
+            restoreCount++;
+          }
+        }
+        
+        if (data.purchases && Array.isArray(data.purchases)) {
+          for (const purchase of data.purchases) {
+            await addData('purchase', purchase);
+            restoreCount++;
+          }
+        }
+        
+        showToast(`Berhasil merestore ${restoreCount} data`, 'success');
+      } catch (err) {
+        console.error(err);
+        showToast('Gagal membaca file backup', 'error');
+      } finally {
+        e.target.value = ''; // reset
+      }
+    };
+    reader.readAsText(file);
+  });
+}

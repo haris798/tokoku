@@ -160,7 +160,7 @@ async function loadDashboardData() {
     const updateInfo = (id, amount, label) => {
       const el = document.getElementById(id);
       if (amount > 0) {
-        el.innerHTML = `<span class="material-symbols-outlined text-[14px]">check_circle</span> Berdasarkan data terkini`;
+        el.innerHTML = `<span class="material-symbols-outlined text-[14px]">check_circle</span> Data terkini`;
         el.className = 'text-xs text-emerald-500 font-bold mt-2 flex items-center gap-1';
       } else {
         el.innerHTML = `<span class="material-symbols-outlined text-[14px]">remove</span> Belum ada data ${label}`;
