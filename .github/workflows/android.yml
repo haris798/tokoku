@@ -46,6 +46,10 @@ jobs:
         working-directory: ./android
         run: chmod +x gradlew
 
+      - name: Setup Gradle Wrapper
+        working-directory: ./android
+        run: gradle wrapper
+
       - name: Build Debug APK
         working-directory: ./android
         run: ./gradlew assembleDebug
