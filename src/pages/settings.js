@@ -3,6 +3,7 @@
  * Mengelola konfigurasi sinkronisasi data dengan Supabase
  */
 import { updateSupabaseConfig, getSupabase, updateSyncStatusUI, checkSupabaseSession } from '../utils/supabase.js';
+import { getSyncLogs } from '../utils/supabase.js';
 
 export function renderSettings(container) {
   const supabaseUrl = localStorage.getItem('supabase_url') || import.meta.env.VITE_SUPABASE_URL || '';
@@ -48,6 +49,24 @@ export function renderSettings(container) {
            </button>
         </div>
       </div>
+
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+           <div>
+             <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+               <span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400">history</span>
+               Log Sinkronisasi
+             </h3>
+             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Riwayat proses sinkronisasi dengan Supabase.</p>
+           </div>
+           <button id="btn-clear-logs" class="text-xs text-slate-500 hover:text-rose-500 transition-colors">Bersihkan Log</button>
+        </div>
+        <div class="p-0">
+           <ul id="sync-log-list" class="divide-y divide-slate-100 dark:divide-slate-800 max-h-60 overflow-y-auto">
+             <!-- Logs will be rendered here -->
+           </ul>
+        </div>
+      </div>
       
       <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
         <div class="p-6 border-b border-slate-100 dark:border-slate-800">
@@ -73,6 +92,60 @@ export function renderSettings(container) {
   `;
 
   setupSupabaseHandlers();
+  renderSyncLogs();
+
+  // Listen to custom event to update logs dynamically
+  window.addEventListener('syncLogsUpdated', renderSyncLogs);
+  
+  document.getElementById('btn-clear-logs').addEventListener('click', () => {
+    localStorage.removeItem('sync_logs');
+    renderSyncLogs();
+  });
+}
+
+function renderSyncLogs() {
+  const logList = document.getElementById('sync-log-list');
+  if (!logList) return;
+  
+  const logs = getSyncLogs();
+  
+  if (logs.length === 0) {
+    logList.innerHTML = `
+      <li class="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
+        Belum ada riwayat sinkronisasi.
+      </li>
+    `;
+    return;
+  }
+  
+  logList.innerHTML = logs.map(log => {
+    const time = new Date(log.time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const date = new Date(log.time).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+    
+    let icon = 'info';
+    let iconColor = 'text-blue-500';
+    let bgHover = 'hover:bg-blue-50/50 dark:hover:bg-blue-500/10';
+    
+    if (log.type === 'error') {
+      icon = 'error';
+      iconColor = 'text-rose-500';
+      bgHover = 'hover:bg-rose-50/50 dark:hover:bg-rose-500/10';
+    } else if (log.type === 'success') {
+      icon = 'check_circle';
+      iconColor = 'text-emerald-500';
+      bgHover = 'hover:bg-emerald-50/50 dark:hover:bg-emerald-500/10';
+    }
+    
+    return `
+      <li class="p-4 flex gap-3 transition-colors ${bgHover}">
+        <span class="material-symbols-outlined ${iconColor} mt-0.5 text-[18px]">${icon}</span>
+        <div class="flex-1">
+          <p class="text-sm font-medium text-slate-800 dark:text-slate-200">${log.message}</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${date}, ${time}</p>
+        </div>
+      </li>
+    `;
+  }).join('');
 }
 
 async function setupSupabaseHandlers() {

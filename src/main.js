@@ -7,7 +7,7 @@ import { renderSidebar, renderBottomNav } from './components/layout.js';
 import { initRouter, navigateTo } from './utils/router.js';
 import { initTheme } from './utils/theme.js';
 import { initDB } from './db/indexeddb.js';
-import { updateSyncStatusUI } from './utils/supabase.js';
+import { updateSyncStatusUI, syncDataToCloud } from './utils/supabase.js';
 import { showToast } from './utils/toast.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -30,8 +30,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       const icon = btnManualSync.querySelector('.material-symbols-outlined');
       if (icon) icon.classList.add('animate-spin');
       
-      setTimeout(() => {
-        if (icon) icon.classList.remove('animate-spin');
+      const result = await syncDataToCloud();
+      
+      if (icon) icon.classList.remove('animate-spin');
+      
+      if (result.success) {
         showToast('Sinkronisasi selesai', 'success');
         
         // Update tooltip status
@@ -39,7 +42,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (syncStatusEl) {
           syncStatusEl.title = `Terakhir Sync: ${new Date().toLocaleTimeString('id-ID')}`;
         }
-      }, 1500);
+      } else {
+        showToast(`Sinkronisasi gagal: ${result.error}`, 'error');
+      }
     });
   }
   

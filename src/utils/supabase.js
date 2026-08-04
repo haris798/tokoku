@@ -42,6 +42,148 @@ export async function checkSupabaseSession() {
   }
 }
 
+export function addSyncLog(message, type = 'info') {
+  const logs = JSON.parse(localStorage.getItem('sync_logs') || '[]');
+  const now = new Date();
+  logs.unshift({
+    id: crypto.randomUUID(),
+    time: now.toISOString(),
+    message,
+    type
+  });
+  if (logs.length > 50) logs.length = 50;
+  localStorage.setItem('sync_logs', JSON.stringify(logs));
+  
+  // Custom event to trigger UI update
+  window.dispatchEvent(new Event('syncLogsUpdated'));
+}
+
+export function getSyncLogs() {
+  return JSON.parse(localStorage.getItem('sync_logs') || '[]');
+}
+
+export async function syncDataToCloud() {
+  const supabase = getSupabase();
+  if (!supabase) {
+    addSyncLog('Gagal memulai sinkronisasi: Supabase tidak terhubung', 'error');
+    return { success: false, error: 'Supabase tidak terhubung' };
+  }
+
+  addSyncLog('Memulai sinkronisasi data...', 'info');
+
+  try {
+    const { getAllData } = await import('../db/indexeddb.js');
+    
+    // Ambil session user untuk ditambahkan ke payload jika RLS mewajibkan user_id
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+
+    const sales = await getAllData('sales');
+    const purchases = await getAllData('purchase');
+
+    // 1. Sync Products (Extract unique products from local data)
+    const productNames = [...new Set([
+      ...sales.map(s => s.product), 
+      ...purchases.map(p => p.product)
+    ])].filter(Boolean);
+
+    let productMap = {}; // name -> id
+    
+    if (productNames.length > 0) {
+      addSyncLog(`Menyiapkan ${productNames.length} produk...`, 'info');
+      // Fetch existing products
+      const { data: existingProducts, error: prodErr } = await supabase.from('products').select('id, name');
+      if (prodErr && !prodErr.message?.includes('row-level security')) throw prodErr; // Abaikan error RLS select sementara jika policy belum lengkap
+      
+      const existingNames = (existingProducts || []).map(p => p.name);
+      const newProducts = productNames.filter(n => !existingNames.includes(n)).map(name => ({ name }));
+      
+      if (newProducts.length > 0) {
+         const { data: inserted, error: insErr } = await supabase.from('products').insert(newProducts).select('id, name');
+         if (insErr && !insErr.message?.includes('row-level security')) {
+           console.warn('Gagal insert produk baru', insErr);
+         }
+         if (inserted) {
+           inserted.forEach(p => productMap[p.name] = p.id);
+         }
+      }
+      
+      (existingProducts || []).forEach(p => productMap[p.name] = p.id);
+    }
+
+    // 2. Sync Sales & Sale Items
+    if (sales.length > 0) {
+      addSyncLog(`Sinkronisasi ${sales.length} data penjualan...`, 'info');
+      
+      const salesPayload = sales.map(s => ({
+        id: s.id,
+        sale_date: s.date,
+        customer_name: s.customer,
+        total_amount: s.total,
+        created_at: s.updated_at || new Date().toISOString()
+      }));
+      
+      const { error: salesError } = await supabase.from('sales').upsert(salesPayload);
+      if (salesError) throw salesError;
+
+      const saleItemsPayload = sales.map(s => ({
+        id: s.id, // Using sale id as item id (1:1 relation locally) to ensure upsert works correctly
+        sale_id: s.id,
+        product_id: productMap[s.product] || null,
+        quantity: s.qty,
+        price: s.price,
+        created_at: s.updated_at || new Date().toISOString()
+      }));
+
+      const { error: saleItemsError } = await supabase.from('sale_items').upsert(saleItemsPayload);
+      if (saleItemsError) throw saleItemsError;
+    }
+
+    // 3. Sync Purchases & Purchase Items
+    if (purchases.length > 0) {
+      addSyncLog(`Sinkronisasi ${purchases.length} data pembelian...`, 'info');
+      
+      const purchasesPayload = purchases.map(p => ({
+        id: p.id,
+        purchase_date: p.date,
+        supplier_name: p.supplier,
+        total_amount: p.total,
+        created_at: p.updated_at || new Date().toISOString()
+      }));
+      
+      const { error: purchaseError } = await supabase.from('purchases').upsert(purchasesPayload);
+      if (purchaseError) throw purchaseError;
+
+      const purchaseItemsPayload = purchases.map(p => ({
+        id: p.id, // Using purchase id as item id
+        purchase_id: p.id,
+        product_id: productMap[p.product] || null,
+        quantity: p.qty,
+        price: p.price,
+        created_at: p.updated_at || new Date().toISOString()
+      }));
+
+      const { error: purchaseItemsError } = await supabase.from('purchase_items').upsert(purchaseItemsPayload);
+      if (purchaseItemsError) throw purchaseItemsError;
+    }
+
+    addSyncLog('Sinkronisasi selesai dengan sukses', 'success');
+    return { success: true };
+  } catch (error) {
+    console.error('Error syncing to Supabase:', error);
+    let errorMsg = error.message || JSON.stringify(error);
+    
+    if (errorMsg.includes('row-level security')) {
+      errorMsg = 'Akses ditolak (RLS). Pastikan Policy tabel sudah benar di Supabase.';
+    } else if (errorMsg.includes('does not exist')) {
+      errorMsg = `Tabel atau kolom tidak ditemukan: ${errorMsg}`;
+    }
+    
+    addSyncLog(`Sinkronisasi gagal: ${errorMsg}`, 'error');
+    return { success: false, error: errorMsg };
+  }
+}
+
 export async function updateSyncStatusUI() {
   const syncStatusEl = document.getElementById('sync-status');
   const btnManualSync = document.getElementById('btn-manual-sync');
