@@ -34,13 +34,17 @@ jobs:
           echo "VITE_SUPABASE_ANON_KEY=${{ secrets.VITE_SUPABASE_ANON_KEY }}" >> .env
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build Web App
         run: npm run build
 
       - name: Sync Capacitor
         run: npx cap sync android
+
+      - name: Make gradlew executable
+        working-directory: ./android
+        run: chmod +x gradlew
 
       - name: Build Debug APK
         working-directory: ./android
