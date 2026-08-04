@@ -1,0 +1,9 @@
+{
+  "appId": "com.toko.ku",
+  "appName": "Toko.ku",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
